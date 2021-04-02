@@ -6,6 +6,9 @@ namespace EngWords
 {
     class MainMenu : Menu
     {
+        GameMenu gameMenu = new GameMenu();
+        OptionMenu optionMenu = new OptionMenu();
+
         protected override void ShowMenu()
         {
             Console.WriteLine("[MAIN MENU]:\n");
@@ -33,13 +36,13 @@ namespace EngWords
             else if (input == "1")
             {
                 Console.Clear();
-                new GameMenu().Start();
+                gameMenu.Start();
                 return true;
             }
             else if (input == "2")
             {
                 Console.Clear();
-                new OptionMenu().Start();
+                optionMenu.Start();
                 return true;
             }
             else
