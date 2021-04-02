@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace EngWords
@@ -16,6 +17,33 @@ namespace EngWords
         {
             UpdateWords();
         }
+
+        public void Modify(string key, string newPair)
+        {
+            DeleteWords(
+                new List<string> { key }
+            );
+
+            string[] temp = newPair.Split('-');
+
+            StoreNewWords(
+                new Dictionary<string, List<string>>
+                {
+                    {temp[0], new List<string>(temp[1].Split('/'))}
+                }
+            );
+        }
+
+        public KeyValuePair<string, List<string>> GetPair(string key) 
+        {
+            KeyValuePair<string, List<string>> pair = words.FirstOrDefault(w => w.Key == key);
+            if (pair.Key != "")
+                return pair;
+            else
+                throw new AggregateException($"Invalid key! - ('{key}')");
+        }
+
+        public int GetCount() { return words.Count; }
 
         public Dictionary<string, List<string>> GetWords() 
         {

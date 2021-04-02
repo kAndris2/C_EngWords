@@ -7,6 +7,9 @@ namespace EngWords
 {
     class OptionMenu : Menu
     {
+        const String HINT = "[INFO]: How it's working?\n" +
+                            "- Save a new word separated from it's meaning by a hyphen: 'dog-kutya'\n" +
+                            "- You can add additional meanings to the word like this: 'dog-kutya/eb'\n";
         protected DataManager data = new DataManager();
 
         protected override void ShowMenu()
@@ -72,7 +75,7 @@ namespace EngWords
 
                 ListAllWords();
                 List<string> keys = GrabKeys(
-                    GetIndexes()
+                    GetIndexes("\nEnter the indexes separated by commas that you want to delete:")
                 );
 
                 data.DeleteWords(keys);
@@ -83,14 +86,76 @@ namespace EngWords
 
                 return true;
             }
+            else if (input == "4")
+            {
+                Console.Clear();
+
+                ListAllWords();
+                string key = GrabKeys(
+                    GetIndexes("\nPlease type the word's index that you want to modify:")
+                )[0];
+
+                Console.Clear();
+                KeyValuePair<string, List<string>> pair = data.GetPair(key);
+                string newPair = GetNewPair(key, pair);
+                data.Modify(key, newPair);
+
+                Console.Clear();
+                Console.WriteLine(
+                    $"You have successfully modified:\n" +
+                    $"'{pair.Key}: {string.Join(',', pair.Value)}' to '{newPair}'"
+                );
+                WaitToKey();
+
+                return true;
+            }
             else
                 throw new KeyNotFoundException($"There is no such option! - ('{input}')");
         }
 
-        List<int> GetIndexes()
+        String GetNewPair(string key, KeyValuePair<string, List<string>> pair)
         {
-            Console.WriteLine("\nEnter the indexes separated by commas that you want to delete:");
-            return Console.ReadLine().Split(',').Select(Int32.Parse).ToList();
+            Console.WriteLine($"Modifying: '{pair.Key}: {string.Join(',', pair.Value)}'\n");
+            Console.WriteLine(HINT);
+            string newPair = Console.ReadLine();
+
+            if (newPair.Contains('-'))
+            {
+                return newPair;
+            }
+            else
+                throw new AggregateException($"The word/meaning pairs must have hyphen!");
+        }
+
+        List<int> GetIndexes(string message)
+        {
+            List<int> Validate(string[] indexes)
+            {
+                List<int> result = new List<int>();
+                foreach(string index in indexes)
+                {
+                    if (int.TryParse(index, out int num))
+                    {
+                        num--;
+                        if (num <= data.GetCount() - 1)
+                        {
+                            result.Add(num);
+                        }
+                        else
+                            throw new AggregateException($"This index is invalid! - ('{num}')");
+                    }
+                    else
+                        throw new AggregateException($"This value '{index}' is not a number!");
+                }
+                return result;
+            }
+
+            Console.WriteLine(message);
+
+            string[] indexes = Console.ReadLine().Split(',');
+            List<int> validIndexes = Validate(indexes);
+
+            return validIndexes;
         }
 
         List<string> GrabKeys(List<int> indexes)
@@ -100,7 +165,7 @@ namespace EngWords
 
             foreach (KeyValuePair<string, List<string>> word in data.GetWords())
             {
-                if (indexes.Contains(i + 1))
+                if (indexes.Contains(i))
                 {
                     keys.Add(word.Key);
                 }
@@ -126,11 +191,7 @@ namespace EngWords
                 return $"[ERROR]: {error}";
             }
 
-            Console.WriteLine(
-                "[INFO]: How it's working?\n" +
-                "- Save a new word separated from it's meaning by a hyphen: 'dog-kutya'\n" +
-                "- You can add additional meanings to the word like this: 'dog-kutya/eb'\n"
-            );
+            Console.WriteLine(HINT);
             string exit = "-1";
             Dictionary<string, List<string>> newWords = new Dictionary<string, List<string>>();
             string input = "";
