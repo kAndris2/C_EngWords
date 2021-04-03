@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 
 namespace EngWords
@@ -13,8 +14,15 @@ namespace EngWords
                       $"- Type '{SKIP}' to skip the current round.\n" +
                       $"- Type '{EXIT}' to stop the game.\n";
 
-        DataManager data = new DataManager();
-        Random random = new Random();
+        readonly DataManager data;
+        readonly Evaluator evaluator;
+        readonly Random random = new Random();
+
+        public Game()
+        {
+            data = new DataManager();
+            evaluator = new Evaluator(data);
+        }
 
         public void Start(bool mode)
         {
@@ -29,7 +37,7 @@ namespace EngWords
 
             result = mode == true ? GuessEnglishWordsMeanings(words, result) : SayInEnglish(words, result);
 
-            Evaluate(result, maxWords);
+            Evaluate(result, maxWords, mode);
         }
 
         int StartQuestion()
@@ -51,42 +59,24 @@ namespace EngWords
                 throw new AggregateException($"The entered value is not a number! - ('{answer}')");
         }
 
-        void Evaluate(Dictionary<string, Dictionary<string, string>> stats, int max)
+        void Evaluate(Dictionary<string, Dictionary<string, string>> stats, int max, bool gameType)
         {
-            String ListResults(Dictionary<string, string> result)
-            {
-                string text = "";
-                foreach(KeyValuePair<string, string> item in result)
-                {
-                    text += $"{item.Key} : {item.Value}\n";
-                }
-                return text;
-            }
-
             Console.Clear();
+            string[] titles = new string[3] { "Success", "Failed", "Skipped"};
+            int percent;
 
-            if (stats["Success"].Count >= 1)
+            foreach(string title in titles)
             {
-                Console.WriteLine(
-                    $"[SUCCESS]: {stats["Success"].Count}/{max}\n" +
-                    $"{ListResults(stats["Success"])}"
-                );
-            }
-
-            if (stats["Failed"].Count >= 1)
-            {
-                Console.WriteLine(
-                    $"[FAILED]: {stats["Failed"].Count}/{max}\n" +
-                    $"{ListResults(stats["Failed"])}"
-                );
-            }
-
-            if (stats["Skipped"].Count >= 1)
-            {
-                Console.WriteLine(
-                    $"[SKIPPED]: {stats["Skipped"].Count}/{max}\n" +
-                    $"{ListResults(stats["Skipped"])}"
-                );
+                if (stats[title].Count >= 1)
+                {
+                    percent = (int)Math.Round((double)(100 * stats[title].Count) / max);
+                    Console.WriteLine($"[{title.ToUpper()}]: {stats[title].Count}/{max} - {percent}%");
+                    evaluator.ShowResults(
+                        stats[title],
+                        gameType,
+                        title == "Failed" ? true : false
+                    );
+                }
             }
         }
 

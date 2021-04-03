@@ -34,13 +34,24 @@ namespace EngWords
             );
         }
 
-        public KeyValuePair<string, List<string>> GetPair(string key) 
+        public KeyValuePair<string, List<string>> GetPair(string key, bool mode = false) 
         {
-            KeyValuePair<string, List<string>> pair = words.FirstOrDefault(w => w.Key == key);
-            if (pair.Key != "")
-                return pair;
+            KeyValuePair<string, List<string>> pair;
+            if (!mode)
+            {
+                pair = words.FirstOrDefault(w => w.Key == key);
+                if (pair.Key != "")
+                    return pair;
+            }
             else
-                throw new AggregateException($"Invalid key! - ('{key}')");
+            {
+                foreach(KeyValuePair<string, List<string>> item in words)
+                {
+                    if (item.Value.Contains(key))
+                        return item;
+                }
+            }
+            throw new AggregateException($"Invalid key! - ('{key}')");
         }
 
         public int GetCount() { return words.Count; }
