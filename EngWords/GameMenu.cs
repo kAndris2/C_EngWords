@@ -6,6 +6,8 @@ namespace EngWords
 {
     class GameMenu : Menu
     {
+        Game game = new Game();
+
         protected override void ShowMenu()
         {
             Console.WriteLine("[GAME MENU]:\n");
@@ -28,6 +30,24 @@ namespace EngWords
             if (input == "0")
             {
                 return false;
+            }
+            else if (input == "1")
+            {
+                Console.Clear();
+
+                game.Start(true);
+                WaitToKey();
+
+                return true;
+            }
+            else if (input == "2")
+            {
+                Console.Clear();
+
+                game.Start(false);
+                WaitToKey();
+
+                return true;
             }
             else
                 throw new KeyNotFoundException($"There is no such option! - ('{input}')");

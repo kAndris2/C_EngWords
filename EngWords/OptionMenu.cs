@@ -10,16 +10,16 @@ namespace EngWords
         const String HINT = "[INFO]: How it's working?\n" +
                             "- Save a new word separated from it's meaning by a hyphen: 'dog-kutya'\n" +
                             "- You can add additional meanings to the word like this: 'dog-kutya/eb'\n";
-        protected DataManager data = new DataManager();
+        DataManager data = new DataManager();
 
         protected override void ShowMenu()
         {
             Console.WriteLine("[OPTION MENU]:\n");
             List<string> options = new List<string>
             {
-                "Add new word(s).",
-                "Show all words.",
-                "Delete word(s).",
+                "Add new word(s)",
+                "Show all words",
+                "Delete word(s)",
                 "Modify word"
             };
 
