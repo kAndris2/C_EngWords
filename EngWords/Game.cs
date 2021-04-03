@@ -183,9 +183,9 @@ namespace EngWords
         Dictionary<string, List<string>> GetRandomPairs(int max)
         {
             Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
-            Dictionary<string, List<string>> origin = data.GetWords();
+            Dictionary<string, List<string>> origin = new Dictionary<string, List<string>>(data.GetWords());
             
-            while(result.Count != max)
+            while (result.Count != max)
             {
                 int index = random.Next(origin.Count);
 
