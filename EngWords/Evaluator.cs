@@ -72,9 +72,14 @@ namespace EngWords
                 }
                 else if (origin.Value.Contains(item.Key))
                 {
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.Write($" {item.Value}");
-                    Console.ResetColor();
+                    if (!item.Value.Contains("skip"))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.Write($" {item.Value}");
+                        Console.ResetColor();
+                    }
+                    else
+                        Console.Write($" {origin.Key}");
                 }
                 Console.WriteLine();
             }
