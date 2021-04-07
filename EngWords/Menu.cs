@@ -6,7 +6,7 @@ namespace EngWords
 {
     abstract class Menu
     {
-        //protected ConsoleLogger logger = new ConsoleLogger();
+        protected ConsoleLogger _logger = new ConsoleLogger();
 
         public void Start()
         {
@@ -23,7 +23,7 @@ namespace EngWords
                 catch (Exception e)
                 {
                     Console.Clear();
-                    Console.WriteLine($"[ERROR]: {e.Message}\n");
+                    _logger.Error(e.Message);
                 }
             }
         }

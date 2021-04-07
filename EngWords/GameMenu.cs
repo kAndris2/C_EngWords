@@ -6,7 +6,12 @@ namespace EngWords
 {
     class GameMenu : Menu
     {
-        Game game = new Game();
+        readonly Game game;
+
+        public GameMenu()
+        {
+            game = new Game(_logger);
+        }
 
         protected override void ShowMenu()
         {

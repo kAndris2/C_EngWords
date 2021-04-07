@@ -100,7 +100,7 @@ namespace EngWords
             return errors;
         }
 
-        Boolean IsExisting(string word)
+        public Boolean IsExisting(string word)
         {
             return words.ContainsKey(word);
         }

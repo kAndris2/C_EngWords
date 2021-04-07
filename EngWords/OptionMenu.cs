@@ -7,9 +7,9 @@ namespace EngWords
 {
     class OptionMenu : Menu
     {
-        const String HINT = "[INFO]: How it's working?\n" +
-                            "- Save a new word separated from it's meaning by a hyphen: 'dog-kutya'\n" +
-                            "- You can add additional meanings to the word like this: 'dog-kutya/eb'\n";
+        const String HINT = "How it's working?\n" +
+                            "\t- Save a new word separated from it's meaning by a hyphen: 'dog-kutya'\n" +
+                            "\t- You can add additional meanings to the word like this: 'dog-kutya/eb'\n";
         DataManager data = new DataManager();
 
         protected override void ShowMenu()
@@ -51,10 +51,14 @@ namespace EngWords
                     Console.Clear();
                     List<string> errors = data.StoreNewWords(newWords);
 
-                    Console.WriteLine(
-                        $"You have successfully stored {newWords.Count - errors.Count}/{newWords.Count} words!\n" +
-                        (errors.Count >= 1 ? $"These words failed: {String.Join(',', errors)}" : "")
-                    );
+                    if(newWords.Count - errors.Count >= 1)
+                    {
+                        _logger.Success($"You have successfully stored {newWords.Count - errors.Count}/{newWords.Count} words!");
+                    }
+                    if(errors.Count >= 1)
+                    {
+                        _logger.Error($"These words failed: {String.Join(',', errors)}");
+                    }
                     WaitToKey();
                 }
 
@@ -81,7 +85,7 @@ namespace EngWords
                 data.DeleteWords(keys);
 
                 Console.Clear();
-                Console.WriteLine($"You have successfully deleted '{keys.Count}' item(s): {string.Join(',', keys)}");
+                _logger.Success($"You have successfully deleted '{keys.Count}' item(s): {string.Join(',', keys)}");
                 WaitToKey();
 
                 return true;
@@ -101,7 +105,7 @@ namespace EngWords
                 data.Modify(key, newPair);
 
                 Console.Clear();
-                Console.WriteLine(
+                _logger.Success(
                     $"You have successfully modified:\n" +
                     $"'{pair.Key}: {string.Join(',', pair.Value)}' to '{newPair}'"
                 );
@@ -116,7 +120,7 @@ namespace EngWords
         String GetNewPair(string key, KeyValuePair<string, List<string>> pair)
         {
             Console.WriteLine($"Modifying: '{pair.Key}: {string.Join(',', pair.Value)}'\n");
-            Console.WriteLine(HINT);
+            _logger.Info(HINT);
             string newPair = Console.ReadLine();
 
             if (newPair.Contains('-'))
@@ -186,12 +190,7 @@ namespace EngWords
 
         Dictionary<string, List<string>> GetNewWords()
         {
-            String SetError(string error)
-            {
-                return $"[ERROR]: {error}";
-            }
-
-            Console.WriteLine(HINT);
+            _logger.Info(HINT);
             string exit = "-1";
             Dictionary<string, List<string>> newWords = new Dictionary<string, List<string>>();
             string input = "";
@@ -201,7 +200,7 @@ namespace EngWords
             {
                 if(error != "")
                 {
-                    Console.WriteLine(error);
+                    _logger.Error(error);
                     error = "";
                 }
 
@@ -212,20 +211,23 @@ namespace EngWords
                 {
                     string[] temp = input.Split('-');
 
-                    if (!newWords.ContainsKey(temp[0]))
+                    if (!data.IsExisting(temp[0]))
                     {
-                        newWords.Add(
-                            temp[0],
-                            new List<string>(temp[1].Split('/'))
-                        );
+                        if (!newWords.ContainsKey(temp[0]))
+                        {
+                            newWords.Add(
+                                temp[0],
+                                new List<string>(temp[1].Split('/'))
+                            );
+                        }
+                        else
+                            error = $"This word '{temp[0]}' has already been added!";
                     }
                     else
-                    {
-                        error = SetError($"This word '{temp[0]}' has already been added!");
-                    }
+                        error = $"This word '{temp[0]}' has already been stored!";
                 }
                 else
-                    error = SetError("This word/meaning pair doesn't containing hyphen!");
+                    error = "This word/meaning pair doesn't containing hyphen!";
             }
             return newWords;
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
@@ -11,17 +12,19 @@ namespace EngWords
         const String SKIP = "skip";
         const String EXIT = "-1";
         String HINT = "[INFO]: How does it work?\n" +
-                      $"- Type '{SKIP}' to skip the current round.\n" +
-                      $"- Type '{EXIT}' to stop the game.\n";
+                      $"\t- Type '{SKIP}' to skip the current round.\n" +
+                      $"\t- Type '{EXIT}' to stop the game.\n";
 
         readonly DataManager data;
         readonly Evaluator evaluator;
+        readonly ConsoleLogger _logger;
         readonly Random random = new Random();
 
-        public Game()
+        public Game(ConsoleLogger logger)
         {
             data = new DataManager();
             evaluator = new Evaluator(data);
+            _logger = logger;
         }
 
         public void Start(bool mode)
@@ -70,7 +73,19 @@ namespace EngWords
                 if (stats[title].Count >= 1)
                 {
                     percent = (int)Math.Round((double)(100 * stats[title].Count) / max);
-                    Console.WriteLine($"[{title.ToUpper()}]: {stats[title].Count}/{max} - {percent}%");
+                    ConsoleColor color = ConsoleColor.White;
+
+                    switch(title.ToUpper())
+                    {
+                        case "SUCCESS": color = ConsoleColor.Green; break;
+                        case "FAILED": color = ConsoleColor.Red; break;
+                        case "SKIPPED": color = ConsoleColor.Yellow; break;
+                    }
+
+                    Console.ForegroundColor = color;
+                    Console.Write($"[{title.ToUpper()}]: ");
+                    Console.ResetColor();
+                    Console.Write($"{stats[title].Count}/{max} - {percent}%\n");
                     evaluator.ShowResults(
                         stats[title],
                         gameType,
@@ -88,7 +103,7 @@ namespace EngWords
                 int rIndex = random.Next(pair.Value.Count);
                 string rWord = pair.Value[rIndex];
 
-                Console.WriteLine($"How do you say in English the '{rWord}'?");
+                GameQuestion("How do you say in English the", rWord);
                 string input = Console.ReadLine();
 
                 if (input == EXIT)
@@ -127,7 +142,7 @@ namespace EngWords
             {
                 ShowCurrentScores(stats, words);
 
-                Console.WriteLine($"What does it mean the '{pair.Key}'?");
+                GameQuestion("What does it mean the", pair.Key);
                 string input = Console.ReadLine();
 
                 if(input == EXIT)
@@ -162,12 +177,44 @@ namespace EngWords
 
         void ShowCurrentScores(Dictionary<string, Dictionary<string, string>> stats, Dictionary<string, List<string>> words)
         {
-            Console.WriteLine(HINT);
-            Console.WriteLine(
-                    $"[SUCCESS]: {stats["Success"].Count}/{words.Count}\t" +
-                    $"[FAILED]: {stats["Failed"].Count}/{words.Count}\t" +
-                    $"[SKIPPED]: {stats["Skipped"].Count}/{words.Count}\n"
-                );
+            String GetHyphens(int basic, int maxLength, Dictionary<string, Dictionary<string, string>> stats)
+            {
+                int max = (stats["Success"].Count == 0 ? 1 : stats["Success"].Count) +
+                          (stats["Failed"].Count == 0 ? 1 : stats["Failed"].Count) +
+                          (stats["Skipped"].Count == 0 ? 1 : stats["Skipped"].Count) +
+                          basic + maxLength;
+                string text = "";
+                for (int i = 0; i < max; i++)
+                {
+                    text += "-";
+                }
+                return text;
+            }
+
+            string hyphens = GetHyphens(41, words.Count.ToString().Length * 3, stats); //41 = static characters count
+
+            _logger.Info(HINT);
+
+            Console.WriteLine(hyphens);
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("[SUCCESS]: ");
+            Console.ResetColor();
+            Console.Write($"{stats["Success"].Count}/{words.Count}  ");
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("[FAILED]: ");
+            Console.ResetColor();
+            Console.Write($"{stats["Failed"].Count}/{words.Count}  ");
+
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("[SKIPPED]: ");
+            Console.ResetColor();
+            Console.Write($"{stats["Skipped"].Count}/{words.Count} |\n");
+
+            Console.WriteLine(hyphens);
+
+            Console.WriteLine();
         }
 
         Dictionary<string, List<string>> GetRandomPairs(int max)
@@ -189,6 +236,16 @@ namespace EngWords
                 );
             }
             return result;
+        }
+
+        void GameQuestion(string question, string word)
+        {
+            Console.Write($"{question} '");
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.Write(word);
+            Console.ResetColor();
+            Console.Write("'?");
+            Console.WriteLine();
         }
     }
 }
