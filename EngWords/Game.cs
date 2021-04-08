@@ -97,6 +97,18 @@ namespace EngWords
 
         Dictionary<string, Dictionary<string, string>> SayInEnglish(Dictionary<string, List<string>> words, Dictionary<string, Dictionary<string, string>> stats)
         {
+            List<string> GetAllResults(string word)
+            {
+                List<string> results = new List<string>();
+
+                foreach(KeyValuePair<string, List<string>> item in _data.GetWords())
+                {
+                    if (item.Value.Contains(word))
+                        results.Add(item.Key);
+                }
+                return results;
+            }
+
             foreach (KeyValuePair<string, List<string>> pair in words)
             {
                 ShowCurrentScores(stats, words);
@@ -105,6 +117,8 @@ namespace EngWords
 
                 GameQuestion("How do you say in English the", rWord);
                 string input = Console.ReadLine();
+
+                List<string> results = GetAllResults(rWord);
 
                 if (input == EXIT)
                 {
@@ -117,7 +131,7 @@ namespace EngWords
                         "(-skipped-)"
                     );
                 }
-                else if (pair.Key.Equals(input))
+                else if (results.Contains(input))
                 {
                     stats["Success"].Add(
                         rWord,
