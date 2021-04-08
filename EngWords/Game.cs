@@ -179,9 +179,9 @@ namespace EngWords
         {
             String GetHyphens(int basic, int maxLength, Dictionary<string, Dictionary<string, string>> stats)
             {
-                int max = (stats["Success"].Count == 0 ? 1 : stats["Success"].Count) +
-                          (stats["Failed"].Count == 0 ? 1 : stats["Failed"].Count) +
-                          (stats["Skipped"].Count == 0 ? 1 : stats["Skipped"].Count) +
+                int max = (stats["Success"].Count == 0 ? 1 : stats["Success"].Count.ToString().Length) +
+                          (stats["Failed"].Count == 0 ? 1 : stats["Failed"].Count.ToString().Length) +
+                          (stats["Skipped"].Count == 0 ? 1 : stats["Skipped"].Count.ToString().Length) +
                           basic + maxLength;
                 string text = "";
                 for (int i = 0; i < max; i++)
