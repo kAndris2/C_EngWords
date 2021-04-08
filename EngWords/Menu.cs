@@ -7,6 +7,7 @@ namespace EngWords
     abstract class Menu
     {
         protected ConsoleLogger _logger = new ConsoleLogger();
+        protected DataManager _data = new DataManager();
 
         public void Start()
         {

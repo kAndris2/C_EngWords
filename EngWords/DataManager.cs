@@ -15,13 +15,14 @@ namespace EngWords
 
         public DataManager()
         {
-            UpdateWords();
+            words = ReadWords();
         }
 
         public void Modify(string key, string newPair)
         {
             DeleteWords(
-                new List<string> { key }
+                new List<string> { key },
+                false
             );
 
             string[] temp = newPair.Split('-');
@@ -30,8 +31,11 @@ namespace EngWords
                 new Dictionary<string, List<string>>
                 {
                     {temp[0], new List<string>(temp[1].Split('/'))}
-                }
+                },
+                false
             );
+
+            SaveToFile();
         }
 
         public KeyValuePair<string, List<string>> GetPair(string key, bool mode = false) 
@@ -64,22 +68,18 @@ namespace EngWords
                 throw new AggregateException("You have no any saved words yet!");
         }
 
-        public void DeleteWords(List<string> keys)
+        public void DeleteWords(List<string> keys, bool saveToFile = true)
         {
-            string text = "";
-
-            foreach (KeyValuePair<string, List<string>> word in words)
+            foreach(string key in keys)
             {
-                if (!keys.Contains(word.Key))
-                {
-                    text += FormatRow(word);
-                }
+                words.Remove(key);
             }
-            File.WriteAllText(WORDS, text);
-            UpdateWords();
+
+            if (saveToFile)
+                SaveToFile();
         }
 
-        public List<string> StoreNewWords(Dictionary<string, List<string>> newWords)
+        public List<string> StoreNewWords(Dictionary<string, List<string>> newWords, bool saveToFile = true)
         {
             List<string> errors = new List<string>();
 
@@ -87,15 +87,17 @@ namespace EngWords
             {
                 if (!IsExisting(word.Key))
                 {
-                    File.AppendAllText(
-                        WORDS, 
-                        FormatRow(word)
+                    words.Add(
+                        word.Key,
+                        word.Value
                     );
                 }
                 else
                     errors.Add(word.Key);
             }
-            UpdateWords();
+
+            if (saveToFile)
+                SaveToFile();
 
             return errors;
         }
@@ -136,14 +138,19 @@ namespace EngWords
             }
         }
 
-        String FormatRow(KeyValuePair<string, List<string>> row)
+        void SaveToFile()
         {
-            return $"{row.Key} - {String.Join('/', row.Value)}\n";
-        }
+            String FormatRow(KeyValuePair<string, List<string>> row)
+            {
+                return $"{row.Key} - {String.Join('/', row.Value)}\n";
+            }
 
-        void UpdateWords()
-        {
-            words = ReadWords();
+            string text = "";
+            foreach(var word in words)
+            {
+                text += FormatRow(word);
+            }
+            File.WriteAllText(WORDS, text);
         }
     }
 }

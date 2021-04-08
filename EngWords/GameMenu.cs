@@ -10,7 +10,7 @@ namespace EngWords
 
         public GameMenu()
         {
-            game = new Game(_logger);
+            game = new Game(_logger, _data);
         }
 
         protected override void ShowMenu()

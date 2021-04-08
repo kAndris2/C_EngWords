@@ -10,7 +10,6 @@ namespace EngWords
         const String HINT = "How it's working?\n" +
                             "\t- Save a new word separated from it's meaning by a hyphen: 'dog-kutya'\n" +
                             "\t- You can add additional meanings to the word like this: 'dog-kutya/eb'\n";
-        DataManager data = new DataManager();
 
         protected override void ShowMenu()
         {
@@ -49,7 +48,7 @@ namespace EngWords
                 else
                 {
                     Console.Clear();
-                    List<string> errors = data.StoreNewWords(newWords);
+                    List<string> errors = _data.StoreNewWords(newWords);
 
                     if(newWords.Count - errors.Count >= 1)
                     {
@@ -82,7 +81,7 @@ namespace EngWords
                     GetIndexes("\nEnter the indexes separated by commas that you want to delete:")
                 );
 
-                data.DeleteWords(keys);
+                _data.DeleteWords(keys);
 
                 Console.Clear();
                 _logger.Success($"You have successfully deleted '{keys.Count}' item(s): {string.Join(',', keys)}");
@@ -100,9 +99,9 @@ namespace EngWords
                 )[0];
 
                 Console.Clear();
-                KeyValuePair<string, List<string>> pair = data.GetPair(key);
+                KeyValuePair<string, List<string>> pair = _data.GetPair(key);
                 string newPair = GetNewPair(key, pair);
-                data.Modify(key, newPair);
+                _data.Modify(key, newPair);
 
                 Console.Clear();
                 _logger.Success(
@@ -141,7 +140,7 @@ namespace EngWords
                     if (int.TryParse(index, out int num))
                     {
                         num--;
-                        if (num <= data.GetCount() - 1)
+                        if (num <= _data.GetCount() - 1)
                         {
                             result.Add(num);
                         }
@@ -167,7 +166,7 @@ namespace EngWords
             List<string> keys = new List<string>();
             int i = 0;
 
-            foreach (KeyValuePair<string, List<string>> word in data.GetWords())
+            foreach (KeyValuePair<string, List<string>> word in _data.GetWords())
             {
                 if (indexes.Contains(i))
                 {
@@ -181,7 +180,7 @@ namespace EngWords
         void ListAllWords()
         {
             int i = 0;
-            foreach (KeyValuePair<string, List<string>> word in data.GetWords())
+            foreach (KeyValuePair<string, List<string>> word in _data.GetWords())
             {
                 i++;
                 Console.WriteLine($"{i}. - {word.Key}: {string.Join(',', word.Value)}");
@@ -211,7 +210,7 @@ namespace EngWords
                 {
                     string[] temp = input.Split('-');
 
-                    if (!data.IsExisting(temp[0]))
+                    if (!_data.IsExisting(temp[0]))
                     {
                         if (!newWords.ContainsKey(temp[0]))
                         {

@@ -15,14 +15,14 @@ namespace EngWords
                       $"\t- Type '{SKIP}' to skip the current round.\n" +
                       $"\t- Type '{EXIT}' to stop the game.\n";
 
-        readonly DataManager data;
+        readonly DataManager _data;
         readonly Evaluator evaluator;
         readonly ConsoleLogger _logger;
         readonly Random random = new Random();
 
-        public Game(ConsoleLogger logger)
+        public Game(ConsoleLogger logger, DataManager data)
         {
-            data = new DataManager();
+            _data = data;
             evaluator = new Evaluator(data);
             _logger = logger;
         }
@@ -45,12 +45,12 @@ namespace EngWords
 
         int StartQuestion()
         {
-            Console.WriteLine($"How much word do you want to play with? Max: {data.GetCount()}");
+            Console.WriteLine($"How much word do you want to play with? Max: {_data.GetCount()}");
             string answer = Console.ReadLine();
 
             if (Int32.TryParse(answer, out int num))
             {
-                if (num < 1 || num > data.GetCount())
+                if (num < 1 || num > _data.GetCount())
                     throw new AggregateException($"Invalid index! - ('{num}')");
                 else
                 {
@@ -220,7 +220,7 @@ namespace EngWords
         Dictionary<string, List<string>> GetRandomPairs(int max)
         {
             Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
-            Dictionary<string, List<string>> origin = new Dictionary<string, List<string>>(data.GetWords());
+            Dictionary<string, List<string>> origin = new Dictionary<string, List<string>>(_data.GetWords());
             
             while (result.Count != max)
             {
