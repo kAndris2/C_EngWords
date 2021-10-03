@@ -11,7 +11,7 @@ namespace EngWords
     {
         const String SKIP = "skip";
         const String EXIT = "-1";
-        String HINT = "[INFO]: How does it work?\n" +
+        String HINT = "How does it work?\n" +
                       $"\t- Type '{SKIP}' to skip the current round.\n" +
                       $"\t- Type '{EXIT}' to stop the game.\n";
 
